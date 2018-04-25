@@ -4,91 +4,108 @@
   become: yes
   tasks:
   # Section Add Indice
-  - name: Changed | Create indice test
+  - name: Create indice test
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://myelasticsearch.fr:9200'
       type: indice
       indice_name: test
       state: present
-  - name: Ok | Create indice test
+  - name: Create indice test
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://myelasticsearch.fr:9200'
       type: indice
       indice_name: test
       state: present
-  - name: Changed | Create indice test2
+  - name: Create indice test2
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://myelasticsearch.fr:9200'
       type: indice
       indice_name: test2
       state: present
 
+
   # Section Add Document
-  - name: Changed | Add a document in indice test
+  - name: Add a document in indice test
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://myelasticsearch.fr:9200'
       type: document
       indice_name: test
-      mapping_type: _doc
+      mapping_type: doc
       document:
         user: "kimchy"
         post_date: "2009-11-15T14:12:12"
         message: "trying out Elasticsearch"
+  - name: Add another document in indice test
+    elasticsearch:
+      url: 'http://myelasticsearch.fr:9200'
+      type: document
+      indice_name: test2
+      mapping_type: doc
+      document: |
+        {
+          "user": "kimchy",
+          "post_date": "2009-11-15T14:12:12",
+          "message": "trying out Elasticsearch"
+        }
+
 
   # Section Rename Indice
-  - name: Changed | Rename indice test to test2
+  - name: Rename indice test to test2
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://myelasticsearch.fr:9200'
       type: indice
       indice_name: test
       rename: test2
       state: rename
 
   # Section Delete Indice
-  - name: Changed | Delete indice test
+  - name: Delete indice test
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://myelasticsearch.fr:9200'
       type: indice
       indice_name: test
       state: absent
-  - name: Changed | Delete indice test2
+  - name: Delete indice test2
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://myelasticsearch.fr:9200'
       type: indice
       indice_name: test2
       state: absent
-  - name: Ok | Delete indice test
+  - name: Delete indice test
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://myelasticsearch.fr:9200'
       type: indice
       indice_name: test
       state: absent
 
+
   # Section Errors Handling
-  - name: Fatal | Create indice | Throw error
+  - name: URL does not exist | Throw error
     ignore_errors: True
     elasticsearch:
-      url: 'http://badurl.fr'
+      url: 'http://blabla.fr'
       type: indice
       indice_name: test
       state: present
-  - name: Fatal | Remove indice | Throw error
+  - name: URL does not exist | Throw error
     ignore_errors: True
     elasticsearch:
-      url: 'http://badurl.fr'
+      url: 'http://myelasticsearch.fr:8888'
       type: indice
       indice_name: test
       state: absent
   - name: Fatal | Create indice | Throw error
+    ignore_errors: True
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://myelasticsearch.fr:8888'
       type: indice
       indice_name: test
       rename: test2
       state: rename
   - name: Fatal | Add a document  | Throw error
+    ignore_errors: True
     elasticsearch:
-      url: 'http://elasticsearch.fr:9200'
+      url: 'http://badurl.fr:9200'
       type: document
       indice_name: test
       mapping_type: _doc
