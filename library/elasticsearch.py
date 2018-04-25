@@ -6,16 +6,18 @@ import ast
 
 DOCUMENTATION = '''
 ---
-module: elastic
+module: elasticsearch
 short_description: Manage elasticsearch service
 description:
-    - Create and delete indices
-version_added: "1.0"
+    - Create, delete and rename an indice
+    - Add a document to an indice
+version_added: "0.1"
 author: "Germain LEFEBVRE [INEAT]"
 notes:
     - xxx
 requirements:
     - requests
+    - ast
 options:
     url:
         description:
@@ -46,9 +48,6 @@ class ElasticAnsibleModule(AnsibleModule):
 
   def __init__(self, *args, **kwargs):
     self._output = []
-    self._facts = dict()
-    self._account_client = None
-    self._catalog_client = None
     super(ElasticAnsibleModule, self).__init__(*args, **kwargs)
 
 
@@ -62,17 +61,19 @@ class ElasticAnsibleModule(AnsibleModule):
       rc=res_indice_check.status_code,
     )
 
-    # Stop if check mode
-    if self.check_mode:
-      return meta
 
     if res_indice_check.status_code in [200]:
-      # Does ont create
+      # Already exists. Nothing to do
       self._output = meta
       return False
     else:
       if res_indice_check.status_code in [404]:
-        # Create indice if does not exist
+        # Create indice
+
+        # Stop if check mode
+        if self.check_mode:
+          return True
+
         res_indice_add = requests.put(req_url, headers=req_headers)
         meta = dict(
           rc=res_indice_add.status_code,
@@ -81,6 +82,7 @@ class ElasticAnsibleModule(AnsibleModule):
         self._output = meta
         return True
       else:
+        # Status code != 404. Unknown status. Throw error
         meta['message'] = "An error ocured. Check if the service is available. Use -vvv option to have more informations."
         self._output = meta
         raise Exception(meta['message'])
@@ -106,16 +108,13 @@ class ElasticAnsibleModule(AnsibleModule):
       rc=res_indice_src_check.status_code,
     )
 
-    # Stop if check mode
-    if self.check_mode:
-      return meta
-
     if res_indice_src_check.status_code not in [200]:
+      # Already exists. Nothing to do
       if res_indice_src_check.status_code in [404]:
         self._output = meta
         return False
       else:
-        # Throw error
+        # Status code != 404. Unknown status. Throw error
         meta = dict(
           rc=res_indice_src_check.status_code,
           message="An error ocured. Check if the service is available. Use -vvv option to have more informations.",
@@ -123,7 +122,12 @@ class ElasticAnsibleModule(AnsibleModule):
         self._output = meta
         raise Exception(meta['message'])
     else:
-      # Does not create if don't exist
+      # Rename indice
+
+      # Stop if check mode
+      if self.check_mode:
+        return True
+
       res_indice_ren = requests.post(req_url, headers=req_headers, json=req_payload)
       meta = dict(
         rc=res_indice_ren.status_code,
@@ -144,18 +148,14 @@ class ElasticAnsibleModule(AnsibleModule):
       rc=res_indice_check.status_code,
     )
 
-    # Stop if check mode
-    if self.check_mode:
-      return meta
-
     # Check if indice does exist
     if res_indice_check.status_code not in [200]:
       if res_indice_check.status_code in [404]:
-        # Does not delete
+        # Already absent. Nothing to do
         self._output = meta
         return False
       else:
-        # Throw error
+        # Status code != 404. Unknown status. Throw error
         meta = dict(
           rc=res_indice_check.status_code,
           message="An error ocured. Check if the service is available. Use -vvv option to have more informations.",
@@ -164,6 +164,11 @@ class ElasticAnsibleModule(AnsibleModule):
         raise Exception(meta['message'])
     else:
       # Delete indice
+
+      # Stop if check mode
+      if self.check_mode:
+        return True
+
       res_indice_del = requests.delete(req_url, headers=req_headers)
       meta = dict(
         rc=res_indice_del.status_code,
@@ -175,9 +180,11 @@ class ElasticAnsibleModule(AnsibleModule):
 
   def elastic_document_add(self, document, mapping_type):
     req_headers = { "Content-type": "application/json" }
-    req_url = "{}/{}/{}/" . format(self.params['url'], mapping_type, self.params['indice_name'])
+    req_url = "{}/{}/{}/" . format(self.params['url'], self.params['indice_name'], mapping_type)
     req_url_check = "{}/{}" . format(self.params['url'], self.params['indice_name'])
-    document = ast.literal_eval(document)
+
+    if type(document).__name__ == 'str':
+      document = ast.literal_eval(document)
 
     # Check if exists
     res_indice_check = requests.get(req_url_check, headers=req_headers)
@@ -185,13 +192,16 @@ class ElasticAnsibleModule(AnsibleModule):
       rc=res_indice_check.status_code,
     )
 
-    # Stop if check mode
-    if self.check_mode:
-      return meta
-
     if res_indice_check.status_code in [200]:
+      # Add document
+
+      # Stop if check mode
+      if self.check_mode:
+        return True
+
       res_document_add = requests.post(req_url, headers=req_headers, json=document)
       if res_document_add.status_code in [201]:
+        # Document added
         meta = dict(
           rc=res_document_add.status_code,
           message="Document added to indice '{}'." . format(self.params['indice_name']),
@@ -199,6 +209,7 @@ class ElasticAnsibleModule(AnsibleModule):
         self._output = meta
         return True
       else:
+        # Can't create document. Throw error
         meta = dict(
           rc=res_document_add.status_code,
           message="An error occured.",
@@ -208,10 +219,11 @@ class ElasticAnsibleModule(AnsibleModule):
         self._output = meta
         raise Exception(meta['message'])
     else:
+      # Service unavailable. Throw error
       meta = dict(
-        rc=res_document_add.status_code,
-        message="An error occured. check if the service is available.",
-        request=req_url,
+        rc=res_indice_check.status_code,
+        message="An error occured. Check if the service is available.",
+        request=req_url_check,
       )
       self._output = meta
       raise Exception(meta['message'])
