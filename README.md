@@ -83,7 +83,7 @@ Task:
   elasticsearch:
 ```
 
-### Don't start from scratch People wrote working things
+### People already wrote working things
 I will quickly explain you how to start and what are the first steps to do.
 Let's try to initiate an elasticsearch module to create indices.
 
