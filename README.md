@@ -78,7 +78,7 @@ Module :
 `library/elasticsearch.py`
 
 Task:
-```
+```yaml
 - name: Call mymodule
   elasticsearch:
 ```
@@ -92,8 +92,7 @@ Let's try to initiate an elasticsearch module to create indices.
 This a minimalist template called examply.py that will help you to correctly start.
 
 `vi library/elasticsearch.py`
-
-```
+```python
 #!/usr/bin/python
 from ansible.module_utils.basic import AnsibleModule
 
@@ -153,7 +152,7 @@ This is all what the main function must have.
 
 
 Let's deep into the ElasticAnsibleModule class methods :
-```
+```python
 # ElasticAnsibleModule is an override of the class AnsibleModule. It keeps all its function, can add some and have its own methods (function of a class)
 class ElasticAnsibleModule(AnsibleModule):
 
@@ -190,7 +189,7 @@ You can enter variable in your ansible task to allow Ansible module to be more d
 
 But what are these said arguments ? I am sure you know :
 Task :
-```
+```yaml
   - name: Create indice test
     elasticsearch:
       url: 'http://elasticsearch.domain.fr:9200'
@@ -205,7 +204,7 @@ Now how to call them from my module ?
 You will need to pass with the argument argument_spec into the class instanciation.
 
 As everything is Yaml in plabooks we need to define the type of the entry between str, list. Type dict is defined by its structure.
-```
+```python
 def main():
   ElasticAnsibleModule(
     argument_spec=dict(
@@ -218,7 +217,7 @@ def main():
 ```
 
 Now you call them in your process method. Let's see how !
-```
+```python
   def process(self):
     try:
       changed = False
@@ -242,7 +241,7 @@ Our module create indice in elasticsearch. For us routing will be defined by the
 
 So let's make a Route controller in the process methode and call the good method depending of the value our 2 routing parameters.
 
-```
+```python
   def process(self):
     try:
       changed = False
@@ -263,7 +262,7 @@ So let's make a Route controller in the process methode and call the good method
 ```
 
 Router is done. Now let's code the functions behind.
-```
+```python
   def elastic_indice_present(self, url, indice_name):
     req_headers = { "Content-type": "application/json" }
     req_url = "{}/{}" . format(url, indice_name)
@@ -303,7 +302,7 @@ Router is done. Now let's code the functions behind.
 
 #### Check mode
 We can handle the --check option in activating the attribute supports_check_mode=True in your class instanciation.
-```
+```python
 def main():
   ElasticAnsibleModule(
     argument_spec=dict(
@@ -314,7 +313,7 @@ def main():
 ```
 
 And check to boolean status of the variable check_mode inside the class (test self.check_mode).
-```
+```python
   def elastic_indice_present(self, indice_name):
     [...]
     # Stop if check_mode is true before doing any action
