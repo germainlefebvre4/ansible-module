@@ -13,18 +13,18 @@ Run playbook:
 **Summary**
 1. [Where to store Ansible Module](#where-to-store-ansible-module)
    1. [The Location](#the-location)
-      a. [Store module at server side](#store-module-at-server-side)
-      b. [Store module at local side](#store-moduleat-local-side)
+      1. [Store module at server side](#store-module-at-server-side)
+      2. [Store module at local side](#store-moduleat-local-side)
    2. [The Configuration](#the-configuration)
 2. [How to start an Ansible Module](#how-to-start-an-ansible-module)
    1. [Behaviour](#behaviour)
-      a. [Ansible running behaviour](#ansible-running-behaviour)
-      b. [Ansible module behaviour](#anssible-module-behaviour)
+      1. [Ansible running behaviour](#ansible-running-behaviour)
+      2. [Ansible module behaviour](#anssible-module-behaviour)
    2. [People already wrote working things](#people-already-wrote-working-things)
-     a. [Basic Template](#basic-template)
-     b. [Arguments](#arguments)
-     c. [Routing](#routing)
-     d. [Check Mode](#check-mode)
+      1. [Basic Template](#basic-template)
+      2. [Arguments](#arguments)
+      3. [Routing](#routing)
+      4. [Check Mode](#check-mode)
 
 
 ## Where to store Ansible Module
