@@ -10,10 +10,24 @@ Run playbook:
 
 `ansible-playbook elasticsearch.yml`
 
+**Summary**
+1. [Where to store Ansible Module](#where-to-store-ansible-module)
+   1. [The Location](#the-location)
+      a. [Store module at server side](#store-module-at-server-side)
+      b. [Store module at local side](#store-moduleat-local-side)
+   2. [The Configuration](#the-configuration)
+2. [How to start an Ansible Module](#how-to-start-an-ansible-module)
+   1. [Behaviour](#behaviour)
+      a. [Ansible running behaviour](#ansible-running-behaviour)
+      b. [Ansible module behaviour](#anssible-module-behaviour)
+   2. [People already wrote working things](#people-already-wrote-working-things)
+     a. [Basic Template](#basic-template)
+     b. [Arguments](#arguments)
+     c. [Routing](#routing)
+     d. [Check Mode](#check-mode)
 
 
-
-## Where to store an Ansible Module
+## Where to store Ansible Module
 
 Ansible modules can be stored everywhere. The ansible config file can define the path where are located the modules.
 To be in a Good Practice way you can store them into /usr/share/ansible/modules but you can also store it in your Ansible Git repository.
